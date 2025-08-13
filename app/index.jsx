@@ -1,8 +1,17 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 export class App extends Component {
+  state = { streDomain: null };
+
+  componentDidMount() {
+    fetch('https://strewebapp.riccardohs.it/api/get-stre-domain')
+      .then((res) => res.json())
+      .then((streDomain) => this.setState({ streDomain }))
+      .catch(() => { });
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -17,6 +26,11 @@ export class App extends Component {
             <Icon name="search" size={20} color="white" />
           </TouchableOpacity>
         </View>
+        {this.state.streDomain && (
+          <TouchableOpacity onPress={() => { Linking.openURL(`https://${this.state.streDomain}`)}}>
+            <Text style={styles.link}>{this.state.streDomain}</Text>
+          </TouchableOpacity>
+        )}
       </View>
     );
   }
@@ -62,4 +76,9 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     marginLeft: 10,
   },
+  link: {
+    color: '#3b82f6',
+    textDecorationLine: 'underline',
+  },
 });
+
