@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, View, StyleSheet, Text } from 'react-native';
 // eslint-disable-next-line import/no-unresolved
-import { Video } from 'expo-av';
+import { VideoView } from 'expo-video';
 import { useLocalSearchParams } from 'expo-router';
 
 export default function Player() {
@@ -62,19 +62,17 @@ export default function Player() {
   return (
     <View style={styles.container}>
       {streamUrl ? (
-        <Video
+        <VideoView
           source={{ uri: streamUrl, headers }}
           style={styles.video}
           overrideFileExtensionAndroid="m3u8"
-          useNativeControls
-          resizeMode="contain"
-          shouldPlay
+          nativeControls
+          allowsFullscreen
+          allowsPictureInPicture
+          contentFit="contain"
           onError={(e) => console.error('Video error', e)}
           onLoadStart={() => console.log('Video load start')}
           onLoad={(status) => console.log('Video loaded', status)}
-          onPlaybackStatusUpdate={(status) =>
-            console.log('Playback status update', status)
-          }
         />
       ) : error ? (
         <Text style={styles.message}>{error}</Text>
