@@ -26,6 +26,7 @@ export default function Player() {
         console.log('Playlist fetch status', res.status);
         const text = await res.text();
         console.log('Playlist snippet', text.slice(0, 100));
+        console.log('Playlist length', text.length);
         let hls = null;
         try {
           const data = JSON.parse(text);
@@ -38,7 +39,11 @@ export default function Player() {
           }
         } catch (_e) {
           // response is plain M3U playlist; look for an HLS url inside
-          const abs = text.match(/https?:\/\/[^\s]+\.m3u8[^\s]*/);
+          let abs = text.match(/https?:\/\/[^\s]+\.m3u8[^\s]*/);
+          if (!abs) {
+            const collapsed = text.replace(/\n/g, '');
+            abs = collapsed.match(/https?:\/\/[^\s]+\.m3u8[^\s]*/);
+          }
           if (abs) {
             hls = abs[0];
             console.log('Found absolute stream', hls);
