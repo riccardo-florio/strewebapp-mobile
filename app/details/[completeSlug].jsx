@@ -12,10 +12,12 @@ import { router, useLocalSearchParams } from 'expo-router';
 
 async function fetchStreamingLinks(id, episodeId = null) {
   const url = episodeId
-    ? `/api/get-streaming-links/${id}?episode_id=${episodeId}`
-    : `/api/get-streaming-links/${id}`;
+    ? `https://strewebapp.riccardohs.it/api/get-streaming-links/${id}?episode_id=${episodeId}`
+    : `https://strewebapp.riccardohs.it/api/get-streaming-links/${id}`;
+  console.log('Fetching streaming links from', url);
   const res = await fetch(url);
   const data = await res.json();
+  console.log('Streaming links response', data);
   return data;
 }
 
@@ -71,14 +73,16 @@ export default function Details() {
 
     try {
       const links = await fetchStreamingLinks(info.id);
+      console.log('Received streaming links', links);
       const vixLink = Array.isArray(links)
         ? links.find((l) => typeof l === 'string' && l.includes('vixcloud'))
         : null;
+      console.log('Selected VixCloud link', vixLink);
       if (vixLink) {
         router.push({ pathname: '/player', params: { url: encodeURIComponent(vixLink) } });
       }
     } catch (_e) {
-      // ignore errors silently
+      console.error('Failed to fetch or play streaming links', _e);
     }
   };
 

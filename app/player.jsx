@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 // eslint-disable-next-line import/no-unresolved
 import { Video } from 'expo-av';
@@ -7,6 +7,11 @@ import { useLocalSearchParams } from 'expo-router';
 export default function Player() {
   const { url } = useLocalSearchParams();
   const source = url ? decodeURIComponent(url) : null;
+
+  useEffect(() => {
+    console.log('Player received URL', url);
+    console.log('Decoded source URL', source);
+  }, [url, source]);
 
   return (
     <View style={styles.container}>
@@ -17,6 +22,12 @@ export default function Player() {
           useNativeControls
           resizeMode="contain"
           shouldPlay
+          onError={(e) => console.error('Video error', e)}
+          onLoadStart={() => console.log('Video load start')}
+          onLoad={(status) => console.log('Video loaded', status)}
+          onPlaybackStatusUpdate={(status) =>
+            console.log('Playback status update', status)
+          }
         />
       )}
     </View>
