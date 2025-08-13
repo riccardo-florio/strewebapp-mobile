@@ -26,10 +26,15 @@ export default function Details() {
   const poster = Array.isArray(info.images)
     ? info.images.find((img) => img.type === 'cover')
     : null;
+  const background = Array.isArray(info.images)
+    ? info.images.find((img) => img.type === 'background')
+    : null;
   const posterUri = poster && domain ? `https://cdn.${domain}/images/${poster.filename}` : null;
+  const backgroundUri = background && domain ? `https://cdn.${domain}/images/${background.filename}` : null;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {backgroundUri && <Image source={{ uri: backgroundUri }} style={styles.background} />}
       {posterUri && <Image source={{ uri: posterUri }} style={styles.poster} />}
       <Text style={styles.title}>{info.name}</Text>
       {info.plot && <Text style={styles.plot}>{info.plot}</Text>}
@@ -51,6 +56,12 @@ const styles = StyleSheet.create({
     color: 'white',
     marginTop: 20,
     textAlign: 'center',
+  },
+  background: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 16,
   },
   poster: {
     width: '100%',
