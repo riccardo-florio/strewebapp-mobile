@@ -1,28 +1,18 @@
 import React, { Component } from 'react';
 import { Text, View, StyleSheet, TextInput, TouchableOpacity, Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { router } from 'expo-router';
 
 export class App extends Component {
-  state = { streDomain: null, query: '', results: [] };
+  state = { streDomain: null, query: '' };
 
   handleSearch = () => {
     const query = this.state.query.trim();
     if (!query) {
-      this.setState({ results: [] });
       return;
     }
 
-    fetch(`https://strewebapp.riccardohs.it/api/search/${encodeURIComponent(query)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        const results = Object.values(data).map((item) => ({
-          id: String(item.id),
-          title: item.name,
-          url: item.url,
-        }));
-        this.setState({ results });
-      })
-      .catch(() => this.setState({ results: [] }));
+    router.push(`/results?query=${encodeURIComponent(query)}`);
   };
 
   componentDidMount() {
@@ -49,13 +39,6 @@ export class App extends Component {
           <TouchableOpacity style={styles.icon} onPress={this.handleSearch}>
             <Icon name="search" size={20} color="white" />
           </TouchableOpacity>
-        </View>
-        <View style={styles.results}>
-          {this.state.results.map((item) => (
-            <TouchableOpacity key={item.id} onPress={() => Linking.openURL(item.url)}>
-              <Text style={styles.result}>{item.title}</Text>
-            </TouchableOpacity>
-          ))}
         </View>
         {this.state.streDomain && (
           <TouchableOpacity
@@ -110,14 +93,6 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 100,
     marginLeft: 10,
-  },
-  results: {
-    width: '80%',
-    marginTop: 20,
-  },
-  result: {
-    color: 'white',
-    paddingVertical: 8,
   },
   link: {
     color: '#3b82f6',
