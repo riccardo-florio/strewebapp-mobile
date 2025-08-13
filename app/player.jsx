@@ -46,6 +46,7 @@ export default function Player() {
             },
           }}
           style={styles.video}
+          overrideFileExtensionAndroid="m3u8"
           useNativeControls
           resizeMode="contain"
           shouldPlay
