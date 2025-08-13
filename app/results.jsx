@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Linking, Image } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 
 export default function Results() {
-  const { query } = useLocalSearchParams();
+  const { query, domain } = useLocalSearchParams();
   const [results, setResults] = useState([]);
 
   useEffect(() => {
@@ -12,33 +12,38 @@ export default function Results() {
     fetch(`https://strewebapp.riccardohs.it/api/search/${encodeURIComponent(query)}`)
       .then((res) => res.json())
       .then((data) => {
-        const items = Object.values(data).map((item) => ({
-          id: String(item.id),
-          title: item.name,
-          type: item.type,
-          score: item.score,
-          genres: item.genres,
-          url: item.url,
-        }));
+        const items = Object.values(data).map((item) => {
+          const poster = Array.isArray(item.images)
+            ? item.images.find((img) => img.type === 'poster')
+            : null;
+          const imageDomain = domain || (item.url ? new URL(item.url).host : null);
+
+          return {
+            id: String(item.id),
+            title: item.name,
+            type: item.type,
+            score: item.score,
+            lastAirDate: item.last_air_date,
+            poster: poster && imageDomain
+              ? `https://cdn.${imageDomain}/images/${poster.filename}`
+              : null,
+            url: item.url,
+          };
+        });
         setResults(items);
       })
       .catch(() => setResults([]));
-  }, [query]);
+  }, [query, domain]);
 
-  const renderItem = ({ item }) => {
-    const genreText = Array.isArray(item.genres)
-      ? item.genres.map((g) => (typeof g === 'string' ? g : g.name)).join(', ')
-      : 'N/A';
-
-    return (
-      <TouchableOpacity style={styles.card} onPress={() => Linking.openURL(item.url)}>
-        <Text style={styles.cardTitle}>{item.title}</Text>
-        <Text style={styles.cardMeta}>Tipo: {item.type}</Text>
-        <Text style={styles.cardMeta}>Generi: {genreText}</Text>
-        <Text style={styles.cardMeta}>Valutazione: {item.score ?? 'N/A'}</Text>
-      </TouchableOpacity>
-    );
-  };
+  const renderItem = ({ item }) => (
+    <TouchableOpacity style={styles.card} onPress={() => Linking.openURL(item.url)}>
+      {item.poster && <Image source={{ uri: item.poster }} style={styles.poster} />}
+      <Text style={styles.cardTitle}>{item.title}</Text>
+      <Text style={styles.cardMeta}>Tipo: {item.type}</Text>
+      <Text style={styles.cardMeta}>Valutazione: {item.score ?? 'N/A'}</Text>
+      <Text style={styles.cardMeta}>Data di uscita: {item.lastAirDate ?? 'N/A'}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
@@ -65,6 +70,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#1a1a1a',
     borderRadius: 8,
     padding: 16,
+  },
+  poster: {
+    width: '100%',
+    height: 180,
+    borderRadius: 4,
+    marginBottom: 8,
   },
   cardTitle: {
     color: 'white',

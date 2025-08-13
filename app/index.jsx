@@ -12,7 +12,8 @@ export class App extends Component {
       return;
     }
 
-    router.push(`/results?query=${encodeURIComponent(query)}`);
+    const domain = this.state.streDomain ? `&domain=${encodeURIComponent(this.state.streDomain)}` : '';
+    router.push(`/results?query=${encodeURIComponent(query)}${domain}`);
   };
 
   componentDidMount() {
