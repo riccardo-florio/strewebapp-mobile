@@ -2,22 +2,27 @@ import React, { Component } from 'react';
 import { Text, View, StyleSheet, TextInput, TouchableOpacity, Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const MOVIES = [
-  { id: '1', title: 'Inception', url: 'https://example.com/inception' },
-  { id: '2', title: 'Interstellar', url: 'https://example.com/interstellar' },
-  { id: '3', title: 'The Matrix', url: 'https://example.com/the-matrix' },
-  { id: '4', title: 'The Lord of the Rings', url: 'https://example.com/lord-of-the-rings' },
-  { id: '5', title: 'The Dark Knight', url: 'https://example.com/the-dark-knight' },
-];
-
 export class App extends Component {
   state = { streDomain: null, query: '', results: [] };
 
   handleSearch = () => {
-    const results = MOVIES.filter((item) =>
-      item.title.toLowerCase().includes(this.state.query.toLowerCase().trim())
-    );
-    this.setState({ results });
+    const query = this.state.query.trim();
+    if (!query) {
+      this.setState({ results: [] });
+      return;
+    }
+
+    fetch(`https://strewebapp.riccardohs.it/api/search/${encodeURIComponent(query)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const results = Object.values(data).map((item) => ({
+          id: String(item.id),
+          title: item.name,
+          url: item.url,
+        }));
+        this.setState({ results });
+      })
+      .catch(() => this.setState({ results: [] }));
   };
 
   componentDidMount() {
