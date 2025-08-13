@@ -22,6 +22,7 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="results" options={{ title: 'Risultati' }} />
+        <Stack.Screen name="details/[completeSlug]" options={{ title: 'Dettagli' }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
