@@ -7,9 +7,9 @@ export class App extends Component {
 
   componentDidMount() {
     fetch('https://strewebapp.riccardohs.it/api/get-stre-domain')
-      .then((res) => res.text())
+      .then((res) => res.json())
       .then((streDomain) => this.setState({ streDomain }))
-      .catch(() => {});
+      .catch(() => { });
   }
 
   render() {
@@ -27,7 +27,7 @@ export class App extends Component {
           </TouchableOpacity>
         </View>
         {this.state.streDomain && (
-          <TouchableOpacity onPress={() => Linking.openURL(this.state.streDomain)}>
+          <TouchableOpacity onPress={() => { Linking.openURL(`https://${this.state.streDomain}`)}}>
             <Text style={styles.link}>{this.state.streDomain}</Text>
           </TouchableOpacity>
         )}
@@ -81,3 +81,4 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
 });
+
