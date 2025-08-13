@@ -8,7 +8,16 @@ import {
   TouchableOpacity,
   Linking,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+
+async function fetchStreamingLinks(id, episodeId = null) {
+  const url = episodeId
+    ? `/api/get-streaming-links/${id}?episode_id=${episodeId}`
+    : `/api/get-streaming-links/${id}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  return data;
+}
 
 export default function Details() {
   const { completeSlug, domain } = useLocalSearchParams();
@@ -57,6 +66,22 @@ export default function Details() {
     ? info.episodeList.filter((e) => e.season === selectedSeason)
     : [];
 
+  const handlePlay = async () => {
+    if (!info?.id) return;
+
+    try {
+      const links = await fetchStreamingLinks(info.id);
+      const vixLink = Array.isArray(links)
+        ? links.find((l) => typeof l === 'string' && l.includes('vixcloud'))
+        : null;
+      if (vixLink) {
+        router.push({ pathname: '/player', params: { url: encodeURIComponent(vixLink) } });
+      }
+    } catch (_e) {
+      // ignore errors silently
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {backgroundUri && <Image source={{ uri: backgroundUri }} style={styles.background} />}
@@ -65,11 +90,8 @@ export default function Details() {
       <Text style={styles.meta}>Durata: {info.duration ? `${info.duration} min` : 'N/A'}</Text>
       <Text style={styles.meta}>Valutazione: {info.rating ?? 'N/A'}</Text>
 
-      {!info?.episodeList?.length && info.url && (
-        <TouchableOpacity
-          style={styles.playButton}
-          onPress={() => Linking.openURL(info.url)}
-        >
+      {!info?.episodeList?.length && (
+        <TouchableOpacity style={styles.playButton} onPress={handlePlay}>
           <Text style={styles.playButtonText}>Riproduci</Text>
         </TouchableOpacity>
       )}
