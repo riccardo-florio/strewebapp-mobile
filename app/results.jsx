@@ -14,7 +14,7 @@ export default function Results() {
       .then((data) => {
         const items = Object.values(data).map((item) => {
           const poster = Array.isArray(item.images)
-            ? item.images.find((img) => img.type === 'poster')
+            ? item.images.find((img) => img.type === 'cover')
             : null;
           const imageDomain = domain || (item.url ? new URL(item.url).host : null);
 
@@ -64,17 +64,17 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   list: {
-    gap: 10,
+    gap: 15,
   },
   card: {
-    backgroundColor: '#1a1a1a',
-    borderRadius: 8,
+    backgroundColor: '#2f2f2fff',
+    borderRadius: 16,
     padding: 16,
   },
   poster: {
     width: '100%',
     height: 180,
-    borderRadius: 4,
+    borderRadius: 8,
     marginBottom: 8,
   },
   cardTitle: {
