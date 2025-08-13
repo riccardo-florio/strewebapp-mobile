@@ -33,17 +33,34 @@ export default function Player() {
             data?.playlist?.[0]?.sources?.find(
               (s) => typeof s.file === 'string' && s.file.includes('m3u8')
             )?.file || null;
+          if (hls) {
+            console.log('Parsed HLS from JSON', hls);
+          }
         } catch (_e) {
-          // response is not JSON, assume playlistUrl is already the HLS stream
-          hls = playlistUrl;
+          // response is plain M3U playlist; look for an HLS url inside
+          const abs = text.match(/https?:\/\/[^\s]+\.m3u8[^\s]*/);
+          if (abs) {
+            hls = abs[0];
+            console.log('Found absolute stream', hls);
+          } else {
+            const rel = text.match(/^[^#\n]+\.m3u8[^\n]*/m);
+            if (rel) {
+              try {
+                hls = new URL(rel[0].trim(), playlistUrl).href;
+                console.log('Resolved relative stream', hls);
+              } catch (err) {
+                console.warn('Failed to resolve relative stream', err);
+              }
+            }
+          }
         }
-        if (hls) {
-          console.log('Using stream URL', hls);
-          setStreamUrl(hls);
-        } else {
+        if (!hls) {
           console.warn('No HLS stream found in playlist');
           setError('Stream non disponibile');
+          return;
         }
+        console.log('Using stream URL', hls);
+        setStreamUrl(hls);
       } catch (e) {
         console.error('Failed to load playlist', e);
         setError('Errore durante il caricamento');
