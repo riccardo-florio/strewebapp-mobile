@@ -1,28 +1,28 @@
-import { Text, View, StyleSheet, TextInput } from 'react-native'
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { Button } from '@react-navigation/elements';
 
-export class app extends Component {
+export class App extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.text}>StreWebApp</Text>
+        <Text style={styles.title}>StreWebApp</Text>
         <View style={styles.searchBar}>
           <TextInput
-            placeholder='Nome del film / serie tv'
-            style={{ color: 'white' }}
+            placeholder="Nome del film / serie tv"
+            placeholderTextColor="#9ca3af"
+            style={styles.input}
           />
-          <Button style={styles.icon} >
-            <Icon name='search' size={20} styles={{color:'white'}} />
-          </Button>
+          <TouchableOpacity style={styles.icon}>
+            <Icon name="search" size={20} color="white" />
+          </TouchableOpacity>
         </View>
       </View>
-    )
+    );
   }
 }
 
-export default app
+export default App;
 
 const styles = StyleSheet.create({
   container: {
@@ -34,25 +34,32 @@ const styles = StyleSheet.create({
     backgroundColor: '#212121',
     gap: 20,
   },
+  title: {
+    color: 'white',
+    fontSize: 40,
+    fontWeight: '400',
+  },
   searchBar: {
     borderWidth: 1,
+    borderColor: '#444',
     borderRadius: 100,
     width: '80%',
-    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
+    backgroundColor: '#1a1a1a',
     justifyContent: 'space-between',
   },
-  text: {
+  input: {
+    flex: 1,
     color: 'white',
-    fontSize: 40,
-    fontWeight: 'semibold',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
   icon: {
-    color: 'white',
     backgroundColor: '#3b82f6',
-    padding: 10,
+    padding: 15,
     borderRadius: 100,
-  }
-})
+    marginLeft: 10,
+  },
+});
