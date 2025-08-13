@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Linking, Image } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function Results() {
   const { query, domain } = useLocalSearchParams();
+  const router = useRouter();
   const [results, setResults] = useState([]);
 
   useEffect(() => {
@@ -20,14 +21,16 @@ export default function Results() {
 
           return {
             id: String(item.id),
+            slug: item.slug,
+            domain: imageDomain,
             title: item.name,
             type: item.type,
             score: item.score,
             lastAirDate: item.last_air_date,
-            poster: poster && imageDomain
-              ? `https://cdn.${imageDomain}/images/${poster.filename}`
-              : null,
-            url: item.url,
+            poster:
+              poster && imageDomain
+                ? `https://cdn.${imageDomain}/images/${poster.filename}`
+                : null,
           };
         });
         setResults(items);
@@ -35,15 +38,22 @@ export default function Results() {
       .catch(() => setResults([]));
   }, [query, domain]);
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.card} onPress={() => Linking.openURL(item.url)}>
-      {item.poster && <Image source={{ uri: item.poster }} style={styles.poster} />}
-      <Text style={styles.cardTitle}>{item.title}</Text>
-      <Text style={styles.cardMeta}>Tipo: {item.type}</Text>
-      <Text style={styles.cardMeta}>Valutazione: {item.score ?? 'N/A'}</Text>
-      <Text style={styles.cardMeta}>Data di uscita: {item.lastAirDate ?? 'N/A'}</Text>
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }) => {
+    const completeSlug = `${item.id}-${item.slug}`;
+    const handlePress = () => {
+      router.push({ pathname: `/details/${completeSlug}`, params: { domain: item.domain } });
+    };
+
+    return (
+      <TouchableOpacity style={styles.card} onPress={handlePress}>
+        {item.poster && <Image source={{ uri: item.poster }} style={styles.poster} />}
+        <Text style={styles.cardTitle}>{item.title}</Text>
+        <Text style={styles.cardMeta}>Tipo: {item.type}</Text>
+        <Text style={styles.cardMeta}>Valutazione: {item.score ?? 'N/A'}</Text>
+        <Text style={styles.cardMeta}>Data di uscita: {item.lastAirDate ?? 'N/A'}</Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
