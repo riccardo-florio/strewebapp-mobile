@@ -65,6 +65,15 @@ export default function Details() {
       <Text style={styles.meta}>Durata: {info.duration ? `${info.duration} min` : 'N/A'}</Text>
       <Text style={styles.meta}>Valutazione: {info.rating ?? 'N/A'}</Text>
 
+      {!info?.episodeList?.length && info.url && (
+        <TouchableOpacity
+          style={styles.playButton}
+          onPress={() => Linking.openURL(info.url)}
+        >
+          <Text style={styles.playButtonText}>Riproduci</Text>
+        </TouchableOpacity>
+      )}
+
       {seasons.length > 0 && (
         <>
           <ScrollView
@@ -164,6 +173,17 @@ const styles = StyleSheet.create({
   meta: {
     color: '#9ca3af',
     marginBottom: 4,
+  },
+  playButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: '#3f3f3f',
+    alignItems: 'center',
+  },
+  playButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   seasonSelector: {
     marginTop: 16,
