@@ -1,9 +1,20 @@
 import React, { Component } from 'react';
 import { Text, View, StyleSheet, TextInput, TouchableOpacity, Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { router } from 'expo-router';
 
 export class App extends Component {
-  state = { streDomain: null };
+  state = { streDomain: null, query: '' };
+
+  handleSearch = () => {
+    const query = this.state.query.trim();
+    if (!query) {
+      return;
+    }
+
+    const domain = this.state.streDomain ? `&domain=${encodeURIComponent(this.state.streDomain)}` : '';
+    router.push(`/results?query=${encodeURIComponent(query)}${domain}`);
+  };
 
   componentDidMount() {
     fetch('https://strewebapp.riccardohs.it/api/get-stre-domain')
@@ -21,13 +32,21 @@ export class App extends Component {
             placeholder="Nome del film / serie tv"
             placeholderTextColor="#9ca3af"
             style={styles.input}
+            value={this.state.query}
+            onChangeText={(query) => this.setState({ query })}
+            onSubmitEditing={this.handleSearch}
+            returnKeyType="search"
           />
-          <TouchableOpacity style={styles.icon}>
+          <TouchableOpacity style={styles.icon} onPress={this.handleSearch}>
             <Icon name="search" size={20} color="white" />
           </TouchableOpacity>
         </View>
         {this.state.streDomain && (
-          <TouchableOpacity onPress={() => { Linking.openURL(`https://${this.state.streDomain}`)}}>
+          <TouchableOpacity
+            onPress={() => {
+              Linking.openURL(`https://${this.state.streDomain}`);
+            }}
+          >
             <Text style={styles.link}>{this.state.streDomain}</Text>
           </TouchableOpacity>
         )}
