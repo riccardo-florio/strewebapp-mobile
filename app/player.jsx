@@ -11,13 +11,40 @@ export default function Player() {
   useEffect(() => {
     console.log('Player received URL', url);
     console.log('Decoded source URL', source);
+
+    const probePlaylist = async () => {
+      if (!source) return;
+      try {
+        console.log('Probing playlist', source);
+        const res = await fetch(source, {
+          headers: {
+            // Some providers require a referer/user-agent for authorized access
+            Referer: 'https://vixcloud.co',
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          },
+        });
+        console.log('Playlist fetch status', res.status);
+      } catch (err) {
+        console.error('Failed to fetch playlist', err);
+      }
+    };
+
+    probePlaylist();
   }, [url, source]);
 
   return (
     <View style={styles.container}>
       {source && (
         <Video
-          source={{ uri: source }}
+          source={{
+            uri: source,
+            headers: {
+              Referer: 'https://vixcloud.co',
+              'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            },
+          }}
           style={styles.video}
           useNativeControls
           resizeMode="contain"
