@@ -8,7 +8,18 @@ import {
   TouchableOpacity,
   Linking,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+
+async function fetchStreamingLinks(id, episodeId = null) {
+  const url = episodeId
+    ? `https://strewebapp.riccardohs.it/api/get-streaming-links/${id}?episode_id=${episodeId}`
+    : `https://strewebapp.riccardohs.it/api/get-streaming-links/${id}`;
+  console.log('Fetching streaming links from', url);
+  const res = await fetch(url);
+  const data = await res.json();
+  console.log('Streaming links response', data);
+  return data;
+}
 
 export default function Details() {
   const { completeSlug, domain } = useLocalSearchParams();
@@ -57,6 +68,24 @@ export default function Details() {
     ? info.episodeList.filter((e) => e.season === selectedSeason)
     : [];
 
+  const handlePlay = async () => {
+    if (!info?.id) return;
+
+    try {
+      const links = await fetchStreamingLinks(info.id);
+      console.log('Received streaming links', links);
+      const vixLink = Array.isArray(links)
+        ? links.find((l) => typeof l === 'string' && l.includes('vixcloud'))
+        : null;
+      console.log('Selected VixCloud link', vixLink);
+      if (vixLink) {
+        router.push({ pathname: '/player', params: { url: encodeURIComponent(vixLink) } });
+      }
+    } catch (_e) {
+      console.error('Failed to fetch or play streaming links', _e);
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {backgroundUri && <Image source={{ uri: backgroundUri }} style={styles.background} />}
@@ -64,6 +93,12 @@ export default function Details() {
       {info.plot && <Text style={styles.plot}>{info.plot}</Text>}
       <Text style={styles.meta}>Durata: {info.duration ? `${info.duration} min` : 'N/A'}</Text>
       <Text style={styles.meta}>Valutazione: {info.rating ?? 'N/A'}</Text>
+
+      {!info?.episodeList?.length && (
+        <TouchableOpacity style={styles.playButton} onPress={handlePlay}>
+          <Text style={styles.playButtonText}>Riproduci</Text>
+        </TouchableOpacity>
+      )}
 
       {seasons.length > 0 && (
         <>
@@ -164,6 +199,17 @@ const styles = StyleSheet.create({
   meta: {
     color: '#9ca3af',
     marginBottom: 4,
+  },
+  playButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    backgroundColor: '#3f3f3f',
+    alignItems: 'center',
+  },
+  playButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   seasonSelector: {
     marginTop: 16,
